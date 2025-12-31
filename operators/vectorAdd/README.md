@@ -1,4 +1,12 @@
+<div align="center">
+
 # Vector Addition Optimization Report
+
+[中文](README.zh-CN.md) | English
+
+</div>
+
+---
 
 ## 1. Background & Problem Definition
 
@@ -165,7 +173,7 @@
 
 ### 1. Pinned Memory (Page-Locked Memory)
 
-1. Using `cudaMallocHost` allocates page-locked memory on the host side. By eliminating runtime page locking/unlocking, the CUDA driver maps host virtual addresses to stable physical page frames, enabling GPU DMA engines to initiate asynchronous PCIe transfers without CPU involvement. Simultaneously, page-locked memory is a necessary condition for `cudaMemcpyAsync` to achieve true asynchronous semantics: only when source/destination memory is pinned can the CUDA runtime guarantee that copy requests are submitted non-blocking and overlap with kernel execution across different streams. This characteristic provides the system-level prerequisite for subsequent pipeline scheduling based on multi-stream.
+1. Using `cudaMallocHost` allocates pinned memory on the host side. By eliminating runtime page locking/unlocking, the CUDA driver maps host virtual addresses to stable physical page frames, enabling GPU DMA engines to initiate asynchronous PCIe transfers without CPU involvement. Simultaneously, page-locked memory is a necessary condition for `cudaMemcpyAsync` to achieve true asynchronous semantics: only when source/destination memory is pinned can the CUDA runtime guarantee that copy requests are submitted non-blocking and overlap with kernel execution across different streams. This characteristic provides the system-level prerequisite for subsequent pipeline scheduling based on multi-stream.
 
 2. **Using `cudaMallocHost` on host side and `cudaFreeHost` for deallocation:**
 
@@ -207,7 +215,7 @@
 
 ### 2. Dual-Stream Concurrency
 
-1. Building upon the page-locked memory configuration, we introduce a dual-stream scheduling strategy to improve parallelism between Host-Device data transfer and computation. In the single-stream execution model, even with `cudaMemcpyAsync`, data transfers and kernel execution must complete sequentially within the same stream, exposing PCIe transfer latency entirely on the critical path and limiting overall efficiency.
+1. Building upon the pinned memory configuration, we introduce a dual-stream scheduling strategy to improve parallelism between Host-Device data transfer and computation. In the single-stream execution model, even with `cudaMemcpyAsync`, data transfers and kernel execution must complete sequentially within the same stream, exposing PCIe transfer latency entirely on the critical path and limiting overall efficiency.
 
    By partitioning input data into multiple batches and assigning H2D transfers, kernel execution, and D2H transfers of different batches to two independent CUDA streams, the GPU's copy engine and compute engine can work in parallel. This optimization doesn't change individual kernel performance but shortens end-to-end execution time by hiding Host-Device data transfer overhead.
 
