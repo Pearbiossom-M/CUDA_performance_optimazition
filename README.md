@@ -1,6 +1,6 @@
 # CUDA Performance Optimization
 
-This repository is a collection of CUDA performance optimization studies focusing on commonly used GPU operators and their execution characteristics on modern NVIDIA GPUs.
+This repository is a collection of CUDA performance optimization studies spanning from operator-level kernels to application-level acceleration on modern NVIDIA GPUs.
 
 Rather than providing a single highly specialized implementation, this project aims to demonstrate **systematic, profiling-driven optimization methodologies**, spanning from kernel-level tuning to system-level execution and data movement optimization.
 
@@ -12,7 +12,7 @@ Rather than providing a single highly specialized implementation, this project a
 - Demonstrate how performance bottlenecks evolve across different layers:
   - Kernel execution
   - Memory hierarchy
-  - Host–Device interaction
+  - Host-Device interaction
   - Execution scheduling and overlap
 - Emphasize **why** a given optimization works, not just **what** was applied
 - Serve as a practical reference for real-world CUDA performance engineering
