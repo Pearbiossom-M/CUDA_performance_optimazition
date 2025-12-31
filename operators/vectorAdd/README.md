@@ -5,7 +5,7 @@
 1. **Operator Description**
    - Vector addition: C[i] = A[i] + B[i]
 2. **Application Scenario**
-   - This is the most fundamental yet memory-bound operator commonly seen in deep learning
+   - This is the most basic but most common memory-bound operator in deep learning
 3. **Hardware & Software Environment**
    - GPU Model: RTX 5060 Ti
    - CUDA version: 13.1
