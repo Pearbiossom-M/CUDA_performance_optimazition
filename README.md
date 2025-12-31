@@ -1,4 +1,4 @@
-# CUDA Operator Optimization
+# CUDA Performance Optimization
 
 This repository is a collection of CUDA performance optimization studies focusing on commonly used GPU operators and their execution characteristics on modern NVIDIA GPUs.
 
