@@ -39,8 +39,8 @@ void launchVectorAdd(const T* h_a, const T* h_b, T* h_c, size_t N) {
     const int threadsPerBlock = 256;
     int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
     vectorAdd_naive<<<blocksPerGrid, threadsPerBlock>>>(dev_a, dev_b, dev_c, N);
-    CHECK_CUDA(cudaGetLastError()); // 检查 launch 错误
-    CHECK_CUDA(cudaDeviceSynchronize()); // 检查 runtime 错误
+    CHECK_CUDA(cudaGetLastError()); 
+    CHECK_CUDA(cudaDeviceSynchronize()); 
 
     CHECK_CUDA(cudaMemcpy(h_c, dev_c, N * sizeof(T), cudaMemcpyDeviceToHost));
 
@@ -66,7 +66,7 @@ int main() {
     CHECK_CUDA(cudaEventCreate(&start));
     CHECK_CUDA(cudaEventCreate(&stop));
     
-    CHECK_CUDA(cudaEventRecord(start, 0));  // 0 表示 default stream，可选
+    CHECK_CUDA(cudaEventRecord(start, 0)); 
 
     launchVectorAdd(a, b, c, N);
 
