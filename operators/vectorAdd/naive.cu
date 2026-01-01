@@ -66,11 +66,11 @@ int main() {
     CHECK_CUDA(cudaEventCreate(&start));
     CHECK_CUDA(cudaEventCreate(&stop));
     
-    CHECK_CUDA(cudaEventRecord(start, 0)); 
+    CHECK_CUDA(cudaEventRecord(start)); 
 
     launchVectorAdd(a, b, c, N);
 
-    CHECK_CUDA(cudaEventRecord(stop, 0));
+    CHECK_CUDA(cudaEventRecord(stop));
     CHECK_CUDA(cudaEventSynchronize(stop));
 
     float elapsedMs = 0.0f;
@@ -96,5 +96,7 @@ int main() {
     delete[] a;
     delete[] b;
     delete[] c;
+    CHECK_CUDA(cudaEventDestroy(start));
+    CHECK_CUDA(cudaEventDestroy(stop));
     return 0;
 }
