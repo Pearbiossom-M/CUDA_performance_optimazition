@@ -216,7 +216,7 @@ __global__ void gemm_naive(
 
 Nsight Compute 的统计结果显示，Compute (SM) Throughput [%]=95.34，乍一看可能会以为 gemm_naive kernel 对计算资源的使用率极高，但这与其性能表现矛盾。需通过 **Compute Workload Analysis** 部分进一步分析，具体指标如下图所示。可以发现 gemm_naive kernel 真正用于计算的资源（如FMA）极少，远未达到计算受限的程度。
 
-![](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\屏幕截图 2026-01-09 222138.png)
+![images/image-20260109222138.png](images/image-20260109222138.png)
 
 #### 2.3.2 Warp Stall 分析
 
@@ -232,7 +232,7 @@ Nsight Compute 的统计结果显示，Compute (SM) Throughput [%]=95.34，乍�
 * **减少 load 指令数量**
 * 或 **拉开 load 指令之间的距离（通过数据重用）**
 
-![image-20260109223832053](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260109223832053.png)
+![image-20260109223832053](images/image-20260109223832053.png)
 
 #### 2.3.3 并行度与资源占用
 
@@ -269,7 +269,7 @@ Achieved Occupancy [%]=99.58，并行度不是性能瓶颈。
 | L2 Cache Throughput [%]     | 19.00 |
 | DRAM Throughput [%]         | 4.04  |
 
-![image-20260114211302735](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260114211302735.png)
+![image-20260114211302735](images/image-20260114211302735.png)
 
 ### 2.4 本章小结
 
@@ -407,7 +407,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
    * **计算资源利用率**
 
      FMA 单元利用率由 14.50% 上升到 25.51%，说明通过 Shared Memory 与 Register Blocking 优化，但计算单元已获得更充分使用。
-     ![image-20260113113307063](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260113113307063.png)
+     ![image-20260113113307063](images/image-20260113113307063.png)
 
    * **Warp Stall 分析**
 
@@ -425,7 +425,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
    
        扩大 register blocking 尺寸，用计算密度换 MIO 压力，但这会增加寄存器压力，可能减少驻留 warp 数量，降低并行度
    
-     ![image-20260113151553693](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260113151553693.png)
+     ![image-20260113151553693](images/image-20260113151553693.png)
    
    * **并行度与资源占用**
    
@@ -444,7 +444,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
      | L2 Cache Throughput [%]     | 17.95                             |
      | DRAM Throughput [%]         | 0.44                              |
    
-     ![image-20260113170013801](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260113170013801.png)
+     ![image-20260113170013801](images/image-20260113170013801.png)
      
    
 4. **本章小结**
@@ -534,7 +534,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
 
      尽管 warp-level kernel 中每个线程计算了更多输出元素，计算单元的利用率反而低于 naive 实现，原因在于 warp-level 实现引入了大量 warp 内通信指令，FMA 指令对 `__shfl_sync` 结果形成了严格依赖，限制了**指令级并行度**，从而降低了 FMA 管线的持续占用率。
 
-     ![image-20260114172427011](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260114172427011.png)
+     ![image-20260114172427011](images/image-20260114172427011.png)
 
      尽管 warp-level kernel 中每个线程计算了更多输出元素，
       其 FMA 单元利用率反而低于 naive 实现。
@@ -551,7 +551,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
 
      主要瓶颈依然是 **Mio Throttle Stalls**，相比于 Shared Memory & Register Blocking 实现，warp-level 实现虽然避免了高频 shared memory load指令，但由于由于缺乏跨 warp 的数据复用，不仅需要频繁使用 `__shfl_sync` 进行寄存器级通信，同时也不可避免地增加了全局内存加载指令的数量。这两类指令均通过 MIO pipeline发射，因此 MIO pipeline 再次被打满。所以该 warp-level 实现实际上是将 shared memory 的 bank conflict 瓶颈转移到了 warp-level MIO pipeline 竞争。这是一个**结构性迁移**，不是“白赚”。
 
-     ![image-20260114204803203](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260114204803203.png)
+     ![image-20260114204803203](images/image-20260114204803203.png)
 
    * **并行度与资源占用**
 
@@ -568,7 +568,7 @@ Shared Memory 的访问延迟远低于 Global Memory ，在需要频繁 Load 的
      | L2 Cache Throughput [%]     | 11.27 |
      | DRAM Throughput [%]         | 3.26  |
      
-     ![image-20260114205829682](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260114205829682.png)
+     ![image-20260114205829682](images/image-20260114205829682.png)
 
 4. **本章小结**
 
@@ -703,7 +703,7 @@ Tensor Core 正是在这一背景下出现的。它并非对现有计算单元�
 
      显然，tensor core 没有被“喂饱”，猜测性能瓶颈在数据供给或并行度设计上，而不是在 mma 本身。
 
-     ![image-20260116201508471](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260116201508471.png)
+     ![image-20260116201508471](images/image-20260116201508471.png)
 
    * **warp stall 分析**
 
@@ -717,7 +717,7 @@ Tensor Core 正是在这一背景下出现的。它并非对现有计算单元�
 
      缺乏 double buffer 和 load、compute 异步执行。
 
-     ![image-20260116202836655](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260116202836655.png)
+     ![image-20260116202836655](images/image-20260116202836655.png)
 
    * **并行度分析**
 
@@ -740,7 +740,7 @@ Tensor Core 正是在这一背景下出现的。它并非对现有计算单元�
      | L2 Cache Throughput [%]     | 14.72 |
      | DRAM Throughput [%]         | 18.53 |
      
-     ![image-20260116204405126](C:\Users\33648\Desktop\CUDA & Triton\CUDA_performance_optimazition\operators\GEMM\images\image-20260116204405126.png)
+     ![image-20260116204405126](images/image-20260116204405126.png)
 
 4. **本章小结**
 
