@@ -42,6 +42,52 @@ A complete optimization walkthrough for a memory-bound vector addition operator,
 
 This example serves as a minimal yet representative case study of CUDA performance optimization across multiple layers.
 
+### General Matrix Multiplication (GEMM) (`operators/gemm/`)
+
+A systematic, execution-centric optimization study of the GEMM operator on modern NVIDIA GPUs, focusing on **where performance bottlenecks actually come from** and **why certain optimizations work or fail**.
+
+This module walks through the full optimization trajectory of a GEMM kernel, starting from a naive CUDA implementation and progressively introducing more advanced techniques, while carefully tracking how bottlenecks shift at each stage.
+
+Key contents include:
+
+* Baseline naive GEMM implementation and performance gap analysis against cuBLAS
+* Execution-centric bottleneck identification using Nsight Compute:
+
+  * Compute utilization
+  * Warp stall analysis
+  * Occupancy vs. memory latency
+* Block-level optimizations:
+
+  * Shared memory tiling
+  * Register blocking
+  * Trade-offs between data reuse, instruction pressure, and occupancy
+* Warp-level exploration:
+
+  * Register-level communication (`__shfl_sync`)
+  * Structural limitations of warp-only designs for large GEMM problems
+* Tensor Core programming with WMMA:
+
+  * Integration into a block–warp–thread hierarchical design
+  * Analysis of why Tensor Cores remain underutilized
+  * Identification of load–compute serialization and shared memory bank conflicts
+* Critical evaluation of common optimization ideas:
+
+  * K-dimension double buffering
+  * Shared memory swizzling
+  * Increasing per-warp compute density
+  * Why these approaches are fundamentally constrained under the WMMA programming model
+* Architectural perspective:
+
+  * `cp.async + ldmatrix + mma.sync` as the software-level peak on Ampere
+  * TMA + WGMMA on Hopper as a shift from thread scheduling to tile description
+* Methodological conclusion:
+
+  * Identification of the practical optimization boundary of hand-written CUDA C++ kernels
+  * Motivation for transitioning to framework-level solutions (CUTLASS, cuBLASLt, Triton)
+
+This GEMM study emphasizes that performance optimization is not a linear accumulation of tricks, but a process of **bottleneck migration and constraint tightening**, and illustrates where low-level kernel tuning ends and higher-level operator composition begins.
+
+
 ---
 
 ## Future Work
